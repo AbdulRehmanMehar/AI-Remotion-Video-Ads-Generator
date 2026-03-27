@@ -26,6 +26,8 @@ services:
       - bulkvideo_public:/app/public
 
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Required on Linux for Ollama access
     # Allow Remotion's Chrome to run with required capabilities
     cap_add:
       - SYS_ADMIN
