@@ -6,7 +6,7 @@ services:
     image: bulkvideo-poc:latest
     container_name: bulkvideo-poc
     ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+      - "${PORT:-3000}:${3000}"
     environment:
       PORT: ${PORT:-3000}
       # Set these in Portainer's "Env" tab, or in a .env file alongside docker-compose.yml
