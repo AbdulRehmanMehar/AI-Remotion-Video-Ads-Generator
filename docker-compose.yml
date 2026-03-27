@@ -1,0 +1,34 @@
+services:
+  bulkvideo-poc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bulkvideo-poc:latest
+    container_name: bulkvideo-poc
+    ports:
+      - "3000:3000"
+    environment:
+      # Set these in Portainer's "Env" tab, or in a .env file alongside docker-compose.yml
+
+      # Option A: Ollama
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b}
+
+      # Option B: OpenAI
+      OPENAI_API_KEY: ${O_API_KEY:-}
+
+      # Public URL of this container (used by Remotion renderer to resolve audio assets)
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+
+    volumes:
+      # Persist rendered MP4s and TTS audio files across container restarts
+      - bulkvideo_public:/app/public
+
+    restart: unless-stopped
+    # Allow Remotion's Chrome to run with required capabilities
+    cap_add:
+      - SYS_ADMIN
+    shm_size: 1gb    # Prevents Chrome OOM crash during rendering
+
+volumes:
+  bulkvideo_public:
