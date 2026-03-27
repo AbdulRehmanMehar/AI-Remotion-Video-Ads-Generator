@@ -10,7 +10,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No text provided' }, { status: 400 });
     }
 
-    // If no OpenAI key, tell the client to fall back to Web Speech API
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({ fallback: true });
     }
@@ -26,14 +25,12 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await mp3.arrayBuffer());
 
-    // Save to public/ so both the browser Player AND the Remotion server renderer
-    // can access it via a real http:// URL (blob: URLs are browser-only)
+    // Save to /tmp — works in all environments (dev, Docker, serverless-like)
+    // Served back via /api/audio/[filename] which reads from /tmp
     const fileName = `tts-${Date.now()}.mp3`;
-    const publicDir = path.join(process.cwd(), 'public');
-    if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
-    fs.writeFileSync(path.join(publicDir, fileName), buffer);
+    fs.writeFileSync(path.join('/tmp', fileName), buffer);
 
-    return NextResponse.json({ url: `/${fileName}` });
+    return NextResponse.json({ url: `/api/audio/${fileName}` });
   } catch (error) {
     console.error('TTS Error:', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
